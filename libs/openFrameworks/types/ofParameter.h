@@ -483,7 +483,9 @@ public:
 	ofParameter(const ofParameter<ParameterType> & v);
 	ofParameter(const ParameterType & v);
 	ofParameter(const std::string& name, const ParameterType & v);
+    ofParameter(const std::string& name, const ParameterType & v, bool serializable);
 	ofParameter(const std::string& name, const ParameterType & v, const ParameterType & min, const ParameterType & max);
+    ofParameter(const std::string& name, const ParameterType & v, const ParameterType & min, const ParameterType & max, bool serializable);
 
 	const ParameterType & get() const;
 	const ParameterType * operator->() const;
@@ -557,6 +559,7 @@ public:
 	ofParameter<ParameterType> & set(const ParameterType & v);
 	ofParameter<ParameterType> & set(const std::string& name, const ParameterType & v);
 	ofParameter<ParameterType> & set(const std::string& name, const ParameterType & v, const ParameterType & min, const ParameterType & max);
+    ofParameter<ParameterType> & set(const std::string& name, const ParameterType & v, const ParameterType & min, const ParameterType & max, bool serializable);
 
 	ofParameter<ParameterType> & setWithoutEventNotifications(const ParameterType & v);
 
@@ -608,6 +611,14 @@ private:
 		,bInNotify(false)
 		,serializable(true){}
 
+        Value(std::string name, ParameterType v, bool serializable)
+        :name(name)
+        ,value(v)
+        ,min(of::priv::TypeInfo<ParameterType>::min())
+        ,max(of::priv::TypeInfo<ParameterType>::max())
+        ,bInNotify(false)
+        ,serializable(serializable){}
+
 		Value(std::string name, ParameterType v, ParameterType min, ParameterType max)
 		:name(name)
 		,value(v)
@@ -616,6 +627,14 @@ private:
 		,bInNotify(false)
 		,serializable(true){}
 
+        Value(std::string name, ParameterType v, ParameterType min, ParameterType max, bool serializable)
+        :name(name)
+        ,value(v)
+        ,min(min)
+        ,max(max)
+        ,bInNotify(false)
+        ,serializable(serializable){}
+        
 		std::string name;
 		ParameterType value;
 		ParameterType min, max;
@@ -657,10 +676,19 @@ ofParameter<ParameterType>::ofParameter(const std::string& name, const Parameter
 ,setMethod(std::bind(&ofParameter<ParameterType>::eventsSetValue, this, std::placeholders::_1)){}
 
 template<typename ParameterType>
+ofParameter<ParameterType>::ofParameter(const std::string& name, const ParameterType & v, bool serializable)
+:obj(std::make_shared<Value>(name, v, serializable))
+,setMethod(std::bind(&ofParameter<ParameterType>::eventsSetValue, this, std::placeholders::_1)){}
+
+template<typename ParameterType>
 ofParameter<ParameterType>::ofParameter(const std::string& name, const ParameterType & v, const ParameterType & min, const ParameterType & max)
 :obj(std::make_shared<Value>(name, v, min, max))
 ,setMethod(std::bind(&ofParameter<ParameterType>::eventsSetValue, this, std::placeholders::_1)){}
 
+template<typename ParameterType>
+ofParameter<ParameterType>::ofParameter(const std::string& name, const ParameterType & v, const ParameterType & min, const ParameterType & max, bool serializable)
+:obj(std::make_shared<Value>(name, v, min, max, serializable))
+,setMethod(std::bind(&ofParameter<ParameterType>::eventsSetValue, this, std::placeholders::_1)){}
 
 template<typename ParameterType>
 inline ofParameter<ParameterType> & ofParameter<ParameterType>::operator=(const ofParameter<ParameterType> & v){
@@ -687,6 +715,16 @@ ofParameter<ParameterType> & ofParameter<ParameterType>::set(const std::string& 
 	setMin(min);
 	setMax(max);
 	return *this;
+}
+
+template<typename ParameterType>
+ofParameter<ParameterType> & ofParameter<ParameterType>::set(const std::string& name, const ParameterType & value, const ParameterType & min, const ParameterType & max, bool serializable){
+    setName(name);
+    set(value);
+    setMin(min);
+    setMax(max);
+    setSerializable(serializable);
+    return *this;
 }
 
 template<typename ParameterType>
@@ -1077,7 +1115,9 @@ public:
 //	ofReadOnlyParameter(ofReadOnlyParameter<ParameterType,Friend> & p);
 	ofReadOnlyParameter(const ParameterType & v);
 	ofReadOnlyParameter(const std::string& name, const ParameterType & v);
+    ofReadOnlyParameter(const std::string& name, const ParameterType & v, bool serializable);
 	ofReadOnlyParameter(const std::string& name, const ParameterType & v, const ParameterType & min, const ParameterType & max);
+    ofReadOnlyParameter(const std::string& name, const ParameterType & v, const ParameterType & min, const ParameterType & max, bool serializable);
 
 	const ParameterType & get() const;
 	const ParameterType * operator->() const;
@@ -1152,6 +1192,7 @@ protected:
 	
 	ofReadOnlyParameter<ParameterType,Friend>& set(const std::string& name, const ParameterType & value);
 	ofReadOnlyParameter<ParameterType,Friend>& set(const std::string& name, const ParameterType & value, const ParameterType & min, const ParameterType & max);
+    ofReadOnlyParameter<ParameterType,Friend>& set(const std::string& name, const ParameterType & value, const ParameterType & min, const ParameterType & max, bool serializable);
 
 	void setMin(const ParameterType & min);
 	void setMax(const ParameterType & max);
@@ -1199,9 +1240,16 @@ inline ofReadOnlyParameter<ParameterType,Friend>::ofReadOnlyParameter(const std:
 :parameter(name,v){}
 
 template<typename ParameterType,typename Friend>
+inline ofReadOnlyParameter<ParameterType,Friend>::ofReadOnlyParameter(const std::string& name, const ParameterType & v, bool serializable)
+:parameter(name,v, serializable){}
+
+template<typename ParameterType,typename Friend>
 inline ofReadOnlyParameter<ParameterType,Friend>::ofReadOnlyParameter(const std::string& name, const ParameterType & v, const ParameterType & min, const ParameterType & max)
 :parameter(name,v,min,max){}
 
+template<typename ParameterType,typename Friend>
+inline ofReadOnlyParameter<ParameterType,Friend>::ofReadOnlyParameter(const std::string& name, const ParameterType & v, const ParameterType & min, const ParameterType & max, bool serializable)
+:parameter(name,v,min,max,serializable){}
 
 template<typename ParameterType,typename Friend>
 inline const ParameterType & ofReadOnlyParameter<ParameterType,Friend>::get() const{
@@ -1440,6 +1488,11 @@ inline ofReadOnlyParameter<ParameterType,Friend> & ofReadOnlyParameter<Parameter
 	return *this;
 }
 
+template<typename ParameterType,typename Friend>
+inline ofReadOnlyParameter<ParameterType,Friend> & ofReadOnlyParameter<ParameterType,Friend>::set(const std::string& name, const ParameterType & value, const ParameterType & min, const ParameterType & max, bool serializable){
+    parameter.set(name,value,min,max,serializable);
+    return *this;
+}
 
 template<typename ParameterType,typename Friend>
 inline void ofReadOnlyParameter<ParameterType,Friend>::setMin(const ParameterType & min){
