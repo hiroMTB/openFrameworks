@@ -537,7 +537,7 @@ private:
 	void onParentScaleChanged(glm::vec3 & scale) {onScaleChanged();}
 
 	//ofParameter<glm::vec3> position;
-	ofParameter<glm::quat> orientation;
+	//ofParameter<glm::quat> orientation;
 	ofParameter<glm::vec3> scale;
 
 	std::array<glm::vec3,3> axis;
@@ -552,5 +552,5 @@ private:
 
 public:
     ofParameter<glm::vec3> position;
-
+    ofParameter<glm::quat> orientation;
 };
