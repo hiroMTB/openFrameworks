@@ -65,6 +65,7 @@ public:
 
 	float				getHeight() const;
 	float				getWidth() const;
+	float				getFps() const;
 
 	bool				isInitialized() const;
 

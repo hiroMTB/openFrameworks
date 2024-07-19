@@ -30,6 +30,7 @@ class ofAVFoundationGrabber;
 
 	int width;
 	int height;
+	int fps;
 
 	BOOL bInitCalled;
 	int deviceID;
@@ -82,6 +83,10 @@ class ofAVFoundationGrabber : virtual public ofBaseVideoGrabber{
 		}
 		float getHeight() const{
 			return height;
+		}
+
+		float getFps() const {
+			return fps;
 		}
 
         bool isInitialized() const;

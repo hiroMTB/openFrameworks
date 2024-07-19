@@ -121,6 +121,7 @@
 						ofLogVerbose("ofAvFoundationGrabber") << "found good framerate range, min: " << range.minFrameRate << " max: " << range.maxFrameRate << " for requested fps: " << framerate;
 						desiredRange = range;
 						numMatch++;
+						fps = range.maxFrameRate;
 					}
 				}
 
@@ -585,6 +586,7 @@ bool ofAVFoundationGrabber::setup(int w, int h){
 		//update the pixel dimensions based on what the camera supports
 		width = grabber->width;
 		height = grabber->height;
+		fps = grabber->fps;
 
 		clear();
 

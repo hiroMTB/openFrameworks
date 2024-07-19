@@ -411,6 +411,15 @@ float ofVideoGrabber::getWidth() const{
 }
 
 //----------------------------------------------------------
+float ofVideoGrabber::getFps() const{
+	if(grabber){
+		return grabber->getFps();
+	}else{
+		return 0;
+	}
+}
+
+//----------------------------------------------------------
 bool ofVideoGrabber::isInitialized() const{
 	return grabber && grabber->isInitialized() && (!bUseTexture || tex[0].isAllocated() || grabber->getTexturePtr());
 }

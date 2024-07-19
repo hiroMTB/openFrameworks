@@ -161,6 +161,11 @@ public:
 	/// \return the video grabber's width.
 	virtual float getWidth() const = 0;
 
+	virtual float getFps() const {
+		// not implemented yet
+		return 0;
+	};
+
 	/// \brief Get the video grabber's internal ofTexture pointer if available.
 	///
 	/// \note Subclasses should implement this method only if internal API can
