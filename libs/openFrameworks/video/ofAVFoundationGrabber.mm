@@ -248,8 +248,8 @@
 	return currentFrame;
 }
 
--(std::vector <std::string>)listDevices{
-    std::vector <std::string> deviceNames;
+-(std::vector <ofVideoDevice>)listDevices{
+    std::vector <ofVideoDevice> deviceList;
 
 	NSArray * devices;
 	if (@available(macOS 10.15, *)) {
@@ -264,11 +264,153 @@
 
 	int i=0;
 	for (AVCaptureDevice * captureDevice in devices){
-        deviceNames.push_back([captureDevice.localizedName UTF8String]);
-		 ofLogNotice() << "Device: " << i << ": " << deviceNames.back();
+        ofVideoDevice vd;
+        vd.id = i;
+        vd.deviceName = [captureDevice.localizedName UTF8String];
+        vd.bAvailable = true;
+
+		ofLogNotice() << "Device: " << i << ": " << vd.deviceName;
+
+        ofLogNotice() << "  Supported formats:";
+        for ( AVCaptureDeviceFormat *format in [captureDevice formats] ) {
+
+            CMFormatDescriptionRef desc = format.formatDescription;
+            CMVideoDimensions dimensions = CMVideoFormatDescriptionGetDimensions(desc);
+            CMVideoCodecType codec = CMVideoFormatDescriptionGetCodecType(desc);
+
+            std::string codecName;
+            switch(codec){
+                case kCVPixelFormatType_1Monochrome: codecName = "1Monochrome"; break;
+                case kCVPixelFormatType_2Indexed: codecName = "2Indexed"; break;
+                case kCVPixelFormatType_4Indexed: codecName = "4Indexed"; break;
+                case kCVPixelFormatType_8Indexed: codecName = "8Indexed"; break;
+                case kCVPixelFormatType_1IndexedGray_WhiteIsZero: codecName = "1IndexedGray_WhiteIsZero"; break;
+                case kCVPixelFormatType_2IndexedGray_WhiteIsZero: codecName = "2IndexedGray_WhiteIsZero"; break;
+                case kCVPixelFormatType_4IndexedGray_WhiteIsZero: codecName = "4IndexedGray_WhiteIsZero"; break;
+                case kCVPixelFormatType_8IndexedGray_WhiteIsZero: codecName = "8IndexedGray_WhiteIsZero"; break;
+                case kCVPixelFormatType_16BE555: codecName = "16BE555"; break;
+                case kCVPixelFormatType_16LE555: codecName = "16LE555"; break;
+                case kCVPixelFormatType_16LE5551: codecName = "16LE5551"; break;
+                case kCVPixelFormatType_16BE565: codecName = "16BE565"; break;
+                case kCVPixelFormatType_16LE565: codecName = "16LE565"; break;
+                case kCVPixelFormatType_24RGB: codecName = "24RGB"; break;
+                case kCVPixelFormatType_24BGR: codecName = "24BGR"; break;
+                case kCVPixelFormatType_32ARGB: codecName = "32ARGB"; break;
+                case kCVPixelFormatType_32BGRA: codecName = "32BGRA"; break;
+                case kCVPixelFormatType_32ABGR: codecName = "32ABGR"; break;
+                case kCVPixelFormatType_32RGBA: codecName = "32RGBA"; break;
+                case kCVPixelFormatType_64ARGB: codecName = "64ARGB"; break;
+                case kCVPixelFormatType_64RGBALE: codecName = "64RGBALE"; break;
+                case kCVPixelFormatType_48RGB: codecName = "48RGB"; break;
+                case kCVPixelFormatType_32AlphaGray: codecName = "32AlphaGray"; break;
+                case kCVPixelFormatType_16Gray: codecName = "16Gray"; break;
+                case kCVPixelFormatType_30RGB: codecName = "30RGB"; break;
+                case kCVPixelFormatType_422YpCbCr8: codecName = "422YpCbCr8"; break;
+                case kCVPixelFormatType_4444YpCbCrA8: codecName = "4444YpCbCrA8"; break;
+                case kCVPixelFormatType_4444YpCbCrA8R: codecName = "4444YpCbCrA8R"; break;
+                case kCVPixelFormatType_4444AYpCbCr8: codecName = "4444AYpCbCr8"; break;
+                case kCVPixelFormatType_4444AYpCbCr16: codecName = "4444AYpCbCr16"; break;
+                case kCVPixelFormatType_4444AYpCbCrFloat: codecName = "4444AYpCbCrFloat"; break;
+                case kCVPixelFormatType_444YpCbCr8: codecName = "444YpCbCr8"; break;
+                case kCVPixelFormatType_422YpCbCr16: codecName = "422YpCbCr16"; break;
+                case kCVPixelFormatType_422YpCbCr10: codecName = "422YpCbCr10"; break;
+                case kCVPixelFormatType_444YpCbCr10: codecName = "444YpCbCr10"; break;
+                case kCVPixelFormatType_420YpCbCr8Planar: codecName = "420YpCbCr8Planar"; break;
+                case kCVPixelFormatType_420YpCbCr8PlanarFullRange: codecName = "420YpCbCr8PlanarFullRange"; break;
+                case kCVPixelFormatType_422YpCbCr_4A_8BiPlanar: codecName = "422YpCbCr_4A_8BiPlanar"; break;
+                case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange: codecName = "420YpCbCr8BiPlanarVideoRange"; break;
+                case kCVPixelFormatType_420YpCbCr8BiPlanarFullRange: codecName = "420YpCbCr8BiPlanarFullRange"; break;
+                case kCVPixelFormatType_422YpCbCr8BiPlanarVideoRange: codecName = "422YpCbCr8BiPlanarVideoRange"; break;
+                case kCVPixelFormatType_422YpCbCr8BiPlanarFullRange: codecName = "422YpCbCr8BiPlanarFullRange"; break;
+                case kCVPixelFormatType_444YpCbCr8BiPlanarVideoRange: codecName = "444YpCbCr8BiPlanarVideoRange"; break;
+                case kCVPixelFormatType_444YpCbCr8BiPlanarFullRange: codecName = "444YpCbCr8BiPlanarFullRange"; break;
+                case kCVPixelFormatType_422YpCbCr8_yuvs: codecName = "422YpCbCr8_yuvs"; break;
+                case kCVPixelFormatType_422YpCbCr8FullRange: codecName = "422YpCbCr8FullRange"; break;
+                case kCVPixelFormatType_OneComponent8: codecName = "OneComponent8"; break;
+                case kCVPixelFormatType_TwoComponent8: codecName = "TwoComponent8"; break;
+                case kCVPixelFormatType_30RGBLEPackedWideGamut: codecName = "30RGBLEPackedWideGamut"; break;
+                case kCVPixelFormatType_ARGB2101010LEPacked: codecName = "ARGB2101010LEPacked"; break;
+                case kCVPixelFormatType_40ARGBLEWideGamut: codecName = "40ARGBLEWideGamut"; break;
+                case kCVPixelFormatType_40ARGBLEWideGamutPremultiplied: codecName = "40ARGBLEWideGamutPremultiplied"; break;
+                case kCVPixelFormatType_OneComponent10: codecName = "OneComponent10"; break;
+                case kCVPixelFormatType_OneComponent12: codecName = "OneComponent12"; break;
+                case kCVPixelFormatType_OneComponent16: codecName = "OneComponent16"; break;
+                case kCVPixelFormatType_TwoComponent16: codecName = "TwoComponent16"; break;
+                case kCVPixelFormatType_OneComponent16Half: codecName = "OneComponent16Half"; break;
+                case kCVPixelFormatType_OneComponent32Float: codecName = "OneComponent32Float"; break;
+                case kCVPixelFormatType_TwoComponent16Half: codecName = "TwoComponent16Half"; break;
+                case kCVPixelFormatType_TwoComponent32Float: codecName = "TwoComponent32Float"; break;
+                case kCVPixelFormatType_64RGBAHalf: codecName = "64RGBAHalf"; break;
+                case kCVPixelFormatType_128RGBAFloat: codecName = "128RGBAFloat"; break;
+                case kCVPixelFormatType_14Bayer_GRBG: codecName = "14Bayer_GRBG"; break;
+                case kCVPixelFormatType_14Bayer_RGGB: codecName = "14Bayer_RGGB"; break;
+                case kCVPixelFormatType_14Bayer_BGGR: codecName = "14Bayer_BGGR"; break;
+                case kCVPixelFormatType_14Bayer_GBRG: codecName = "14Bayer_GBRG"; break;
+                case kCVPixelFormatType_DisparityFloat16: codecName = "DisparityFloat16"; break;
+                case kCVPixelFormatType_DisparityFloat32: codecName = "DisparityFloat32"; break;
+                case kCVPixelFormatType_DepthFloat16: codecName = "DepthFloat16"; break;
+                case kCVPixelFormatType_DepthFloat32: codecName = "DepthFloat32"; break;
+                case kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange: codecName = "420YpCbCr10BiPlanarVideoRange"; break;
+                case kCVPixelFormatType_422YpCbCr10BiPlanarVideoRange: codecName = "422YpCbCr10BiPlanarVideoRange"; break;
+                case kCVPixelFormatType_444YpCbCr10BiPlanarVideoRange: codecName = "444YpCbCr10BiPlanarVideoRange"; break;
+                case kCVPixelFormatType_420YpCbCr10BiPlanarFullRange: codecName = "420YpCbCr10BiPlanarFullRange"; break;
+                case kCVPixelFormatType_422YpCbCr10BiPlanarFullRange: codecName = "422YpCbCr10BiPlanarFullRange"; break;
+                case kCVPixelFormatType_444YpCbCr10BiPlanarFullRange: codecName = "444YpCbCr10BiPlanarFullRange"; break;
+                case kCVPixelFormatType_420YpCbCr8VideoRange_8A_TriPlanar: codecName = "420YpCbCr8VideoRange_8A_TriPlanar"; break;
+                case kCVPixelFormatType_16VersatileBayer: codecName = "16VersatileBayer"; break;
+                case kCVPixelFormatType_64RGBA_DownscaledProResRAW: codecName = "64RGBA_DownscaledProResRAW"; break;
+                case kCVPixelFormatType_422YpCbCr16BiPlanarVideoRange: codecName = "422YpCbCr16BiPlanarVideoRange"; break;
+                case kCVPixelFormatType_444YpCbCr16BiPlanarVideoRange: codecName = "444YpCbCr16BiPlanarVideoRange"; break;
+                case kCVPixelFormatType_444YpCbCr16VideoRange_16A_TriPlanar: codecName = "444YpCbCr16VideoRange_16A_TriPlanar"; break;
+                default: codecName = "unknown"; break;
+            }
+
+            std::stringstream ss;
+            ss << "  " << std::left << std::setw(32) <<  codecName <<  ": "
+            << std::right
+            << std::setfill(' ')<< std::setw(4) << dimensions.width << " x "
+            << std::setfill(' ')<< std::setw(4) << dimensions.height << "px, ";
+
+            ofVideoFormat vf;
+            vf.width = dimensions.width;
+            vf.height = dimensions.height;
+            vf.videoCodec.codec = codec;
+            vf.videoCodec.name = codecName;
+
+            ss << "fps: ";
+
+            for ( AVFrameRateRange *range in format.videoSupportedFrameRateRanges ) {
+                if(range.minFrameRate == range.maxFrameRate){
+                    // Some device (like logitech webcam) gives range that has same min and max value like {30-30, 24-24, 20-20, ...}.
+                    // In this case we only store minFrameRate.
+                    vf.framerates.push_back(range.minFrameRate);
+                    ss << range.minFrameRate << ", ";
+                }else{
+                    // But Some device (like macbook pro's webcam) gives range like {15-30}
+                    // Not sure if we can get actual supported frame rates for this case.
+                    vf.framerates.push_back(range.minFrameRate);
+                    vf.framerates.push_back(range.maxFrameRate);
+                    ss << range.minFrameRate << " - " << range.maxFrameRate << ", ";
+                }
+            }
+
+            ofLogNotice() << ss.str().substr(0, ss.str().size()-2);
+            vd.formats.push_back(vf);
+        }
+
+        deviceList.push_back(vd);
+
+        // Get more information about the format
+        // FourCharCode subtype = CMFormatDescriptionGetMediaSubType(desc);
+        // CFDictionaryRef dict = CVPixelFormatDescriptionCreateWithPixelFormatType(NULL, subtype);
+        // int bits = [[dict objectForKey:@"BitsPerComponent"] intValue];
+        // bool bAlpha = [[dict objectForKey:@"ContainsAlpha"]boolValue];
+        // bool bGray = [[dict objectForKey:@"ContainsGrayscale"]boolValue];
+        // bool bRGB = [[dict objectForKey:@"ContainsRGB"]boolValue];
+        // bool bYCvCr = [[dict objectForKey:@"ContainsYCbCr"]boolValue];
 		i++;
     }
-    return deviceNames;
+    return deviceList;
 }
 
 -(void)setDevice:(int)_device{
@@ -495,18 +637,7 @@ void ofAVFoundationGrabber::updatePixelsCB(){
 }
 
 std::vector <ofVideoDevice> ofAVFoundationGrabber::listDevices() const{
-	std::vector <std::string> devList = [grabber listDevices];
-
-    std::vector <ofVideoDevice> devices;
-    for(int i = 0; i < devList.size(); i++){
-        ofVideoDevice vd;
-        vd.deviceName = devList[i];
-        vd.id = i;
-        vd.bAvailable = true;
-        devices.push_back(vd);
-    }
-
-    return devices;
+    return [grabber listDevices];
 }
 
 void ofAVFoundationGrabber::setDeviceID(int deviceID) {
