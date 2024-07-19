@@ -1,6 +1,7 @@
 #pragma once
 #include "ofGraphicsBaseTypes.h"
 #include "ofGLBaseTypes.h"
+#include <any>
 
 enum ofPixelFormat: short;
 
@@ -17,7 +18,13 @@ enum ofLoopType : short{
 	OF_LOOP_NORMAL=0x03
 };
 
+class ofVideoCodec {
+public:
 
+	std::string name;
+
+	std::any codec;
+};
 
 /// \brief A structure describing attributes of a video format.
 ///
@@ -38,6 +45,8 @@ public:
 
 	/// \brief A list of framerates for this video format in frames per second.
 	std::vector<float> framerates;
+
+	ofVideoCodec videoCodec;
 };
 
 /// \brief A structure describing attributes of a video device.
