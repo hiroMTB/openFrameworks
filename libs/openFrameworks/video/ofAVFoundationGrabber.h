@@ -46,7 +46,7 @@ class ofAVFoundationGrabber;
 -(void)startCapture;
 -(void)stopCapture;
 -(void)lockExposureAndFocus;
--(std::vector <std::string>)listDevices;
+-(std::vector <ofVideoDevice>)listDevices;
 -(void)setDevice:(int)_device;
 -(void)eraseGrabberPtr;
 
